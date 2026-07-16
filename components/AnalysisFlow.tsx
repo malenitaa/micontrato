@@ -112,7 +112,7 @@ export default function AnalysisFlow({ modo }: Props) {
                 <select
                   value={rubro}
                   onChange={(e) => setRubro(e.target.value)}
-                  className="w-full rounded-lg border border-ink/20 bg-white p-2.5 text-sm focus:border-ink/40 focus:outline-none"
+                  className="w-full rounded-lg border border-ink/20 bg-surface p-2.5 text-sm focus:border-ink/40 focus:outline-none"
                 >
                   <option value="">Sin especificar</option>
                   {RUBROS_CONSUMIDOR.map((r) => (
@@ -138,7 +138,7 @@ export default function AnalysisFlow({ modo }: Props) {
             </div>
 
             {estado === "error" && (
-              <p className="rounded-lg bg-amber-50 p-3 text-sm text-amber-700">
+              <p className="rounded-lg bg-amber-50 p-3 text-sm text-amber-700 dark:bg-amber-950/40 dark:text-amber-300">
                 {errorMsg}
               </p>
             )}
@@ -147,7 +147,7 @@ export default function AnalysisFlow({ modo }: Props) {
               type="button"
               disabled={!puedeAnalizar || estado === "cargando"}
               onClick={analizar}
-              className="w-full rounded-lg bg-ink px-4 py-3 text-sm font-medium text-white transition hover:bg-ink/90 disabled:cursor-not-allowed disabled:bg-ink/30"
+              className="w-full rounded-lg bg-btnbg px-4 py-3 text-sm font-medium text-btnfg transition hover:opacity-90 disabled:cursor-not-allowed disabled:bg-btnbg/30"
             >
               {estado === "cargando" ? "Analizando…" : "Analizar"}
             </button>

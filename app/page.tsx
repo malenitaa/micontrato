@@ -13,7 +13,7 @@ export default function Home() {
       <div className="mt-10 grid w-full gap-4 sm:grid-cols-2">
         <Link
           href="/laboral"
-          className="group flex flex-col items-start gap-2 rounded-xl border border-ink/10 bg-white p-6 text-left shadow-sm transition hover:border-ink/30 hover:shadow-md"
+          className="group flex flex-col items-start gap-2 rounded-xl border border-ink/10 bg-surface p-6 text-left shadow-sm transition hover:border-ink/30 hover:shadow-md"
         >
           <span className="text-2xl">🧾</span>
           <span className="text-lg font-medium text-ink">Laboral</span>
@@ -24,7 +24,7 @@ export default function Home() {
 
         <Link
           href="/consumidor"
-          className="group flex flex-col items-start gap-2 rounded-xl border border-ink/10 bg-white p-6 text-left shadow-sm transition hover:border-ink/30 hover:shadow-md"
+          className="group flex flex-col items-start gap-2 rounded-xl border border-ink/10 bg-surface p-6 text-left shadow-sm transition hover:border-ink/30 hover:shadow-md"
         >
           <span className="text-2xl">🛒</span>
           <span className="text-lg font-medium text-ink">Consumidor</span>

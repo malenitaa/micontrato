@@ -5,8 +5,11 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        paper: "#faf9f6",
-        ink: "#1f2320",
+        paper: "rgb(var(--color-paper) / <alpha-value>)",
+        ink: "rgb(var(--color-ink) / <alpha-value>)",
+        surface: "rgb(var(--color-surface) / <alpha-value>)",
+        btnbg: "rgb(var(--color-btn-bg) / <alpha-value>)",
+        btnfg: "rgb(var(--color-btn-fg) / <alpha-value>)",
         amber: {
           50: "#fdf8ee",
           100: "#f8ecd0",

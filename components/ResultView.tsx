@@ -11,8 +11,9 @@ function Card({
   articulo?: string;
   tono: "neutral" | "amber";
 }) {
-  const border = tono === "amber" ? "border-amber-300" : "border-ink/10";
-  const bg = tono === "amber" ? "bg-amber-50" : "bg-white";
+  const border =
+    tono === "amber" ? "border-amber-300 dark:border-amber-800/60" : "border-ink/10";
+  const bg = tono === "amber" ? "bg-amber-50 dark:bg-amber-950/30" : "bg-surface";
   return (
     <div className={`rounded-lg border ${border} ${bg} p-4`}>
       <p className="font-medium text-ink">{titulo}</p>
@@ -27,7 +28,7 @@ function Card({
 export default function ResultView({ result }: { result: AnalysisResult }) {
   if (result.estado === "insuficiente") {
     return (
-      <div className="rounded-lg border border-ink/10 bg-white p-5 text-sm text-ink/70">
+      <div className="rounded-lg border border-ink/10 bg-surface p-5 text-sm text-ink/70">
         <p className="font-medium text-ink">No tenemos suficiente información</p>
         <p className="mt-1">{result.notaInsuficiente}</p>
       </div>
@@ -76,7 +77,7 @@ export default function ResultView({ result }: { result: AnalysisResult }) {
       )}
 
       {result.irregularidades.length === 0 && (
-        <div className="rounded-lg border border-ink/10 bg-white p-4 text-sm text-ink/70">
+        <div className="rounded-lg border border-ink/10 bg-surface p-4 text-sm text-ink/70">
           No detectamos irregularidades frecuentes con la información
           disponible. Esto no garantiza que todo esté en orden — es una
           primera lectura, no un análisis exhaustivo.

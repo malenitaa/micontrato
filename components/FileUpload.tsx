@@ -79,7 +79,7 @@ export default function FileUpload({ documentos, onChange }: Props) {
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-center gap-3">
-        <label className="cursor-pointer rounded-lg border border-ink/20 bg-white px-4 py-2 text-sm font-medium text-ink hover:border-ink/40">
+        <label className="cursor-pointer rounded-lg border border-ink/20 bg-surface px-4 py-2 text-sm font-medium text-ink hover:border-ink/40">
           {procesando ? "Leyendo PDF…" : "Subir PDF"}
           <input
             ref={inputRef}
@@ -94,7 +94,7 @@ export default function FileUpload({ documentos, onChange }: Props) {
         <button
           type="button"
           onClick={() => setPegarTexto((v) => !v)}
-          className="rounded-lg border border-ink/20 bg-white px-4 py-2 text-sm font-medium text-ink hover:border-ink/40"
+          className="rounded-lg border border-ink/20 bg-surface px-4 py-2 text-sm font-medium text-ink hover:border-ink/40"
         >
           Pegar texto en vez de subir
         </button>
@@ -103,7 +103,9 @@ export default function FileUpload({ documentos, onChange }: Props) {
         </span>
       </div>
 
-      {error && <p className="text-sm text-amber-700">{error}</p>}
+      {error && (
+        <p className="text-sm text-amber-700 dark:text-amber-300">{error}</p>
+      )}
 
       {pegarTexto && (
         <div className="space-y-2">
@@ -117,7 +119,7 @@ export default function FileUpload({ documentos, onChange }: Props) {
           <button
             type="button"
             onClick={agregarTextoManual}
-            className="rounded-lg bg-ink px-4 py-1.5 text-sm font-medium text-white hover:bg-ink/90"
+            className="rounded-lg bg-btnbg px-4 py-1.5 text-sm font-medium text-btnfg hover:opacity-90"
           >
             Agregar
           </button>
@@ -129,12 +131,12 @@ export default function FileUpload({ documentos, onChange }: Props) {
           {documentos.map((doc) => (
             <li
               key={doc.id}
-              className="flex items-center justify-between rounded-lg border border-ink/10 bg-white px-3 py-2 text-sm"
+              className="flex items-center justify-between rounded-lg border border-ink/10 bg-surface px-3 py-2 text-sm"
             >
               <span className="truncate">
                 📄 {doc.nombre}
                 {doc.illegible && (
-                  <span className="ml-2 text-amber-700">
+                  <span className="ml-2 text-amber-700 dark:text-amber-300">
                     (no se pudo leer texto — puede ser un PDF escaneado)
                   </span>
                 )}

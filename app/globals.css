@@ -2,11 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --color-paper: 250 249 246;
+  --color-ink: 31 35 32;
+  --color-surface: 255 255 255;
+  --color-btn-bg: 31 35 32;
+  --color-btn-fg: 255 255 255;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-paper: 19 20 22;
+    --color-ink: 232 230 224;
+    --color-surface: 30 32 35;
+    --color-btn-bg: 232 230 224;
+    --color-btn-fg: 19 20 22;
+  }
+}
+
 html {
-  color-scheme: light;
+  color-scheme: light dark;
 }
 
 body {
-  background-color: #faf9f6;
-  color: #1f2320;
+  background-color: rgb(var(--color-paper));
+  color: rgb(var(--color-ink));
 }
