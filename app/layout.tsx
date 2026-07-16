@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Disclaimer from "@/components/Disclaimer";
+import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
   title: "MiContrato — Entendé tus derechos",
@@ -15,9 +16,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
-      <body className="min-h-screen font-sans antialiased">
+      <body className="flex min-h-screen flex-col font-sans antialiased">
         <Disclaimer />
-        {children}
+        <div className="flex-1">{children}</div>
+        <Footer />
       </body>
     </html>
   );
