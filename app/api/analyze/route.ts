@@ -113,12 +113,10 @@ export async function POST(req: NextRequest) {
   let response;
   try {
     response = await client.messages.create({
-      model: "claude-opus-4-8",
+      model: "claude-haiku-4-5",
       max_tokens: 4096,
       system,
-      thinking: { type: "adaptive" },
       output_config: {
-        effort: "medium",
         format: { type: "json_schema", schema: OUTPUT_SCHEMA },
       },
       messages: [{ role: "user", content: userContent }],

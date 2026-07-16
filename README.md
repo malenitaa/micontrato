@@ -75,7 +75,7 @@ vigencia y su fuente, en vez de quedar hardcodeado dentro del resumen legal.
 ## Stack técnico
 
 - Next.js (App Router) + TypeScript + Tailwind CSS
-- `@anthropic-ai/sdk` para el análisis (modelo `claude-opus-4-8`, salida
+- `@anthropic-ai/sdk` para el análisis (modelo `claude-haiku-4-5`, salida
   estructurada vía `output_config.format`)
 - `pdfjs-dist` para extraer texto de PDFs en el cliente
 - Sin base de datos — todo el estado vive en la sesión del navegador
