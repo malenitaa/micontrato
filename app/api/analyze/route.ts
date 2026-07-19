@@ -5,7 +5,7 @@ import {
   buildSystemPromptConsumidor,
   OUTPUT_SCHEMA,
 } from "@/lib/prompts";
-import { RECURSOS_LABORAL, RECURSOS_CONSUMIDOR } from "@/lib/legal-data";
+import { RECURSOS_LABORAL, RECURSOS_CONSUMIDOR, RUBROS_CONSUMIDOR } from "@/lib/legal-data";
 import { esArticuloVerificable } from "@/lib/legal-context/articulos-validos";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { AnalyzeRequest, AnalysisResult, Irregularidad } from "@/lib/types";
@@ -14,6 +14,7 @@ export const runtime = "nodejs";
 
 const MAX_TOTAL_CHARS = 120_000;
 const MAX_DOCUMENTOS = 5;
+const MAX_DOC_NAME_CHARS = 200;
 
 function buildUserContent(body: AnalyzeRequest): string {
   const partes: string[] = [];
@@ -68,8 +69,26 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Modo inválido." }, { status: 400 });
   }
 
-  const documentos = Array.isArray(body.documentos) ? body.documentos : [];
+  const rawDocs = Array.isArray(body.documentos) ? body.documentos : [];
+  if (rawDocs.length > MAX_DOCUMENTOS) {
+    return NextResponse.json(
+      { error: "Demasiados documentos adjuntados." },
+      { status: 400 }
+    );
+  }
+  const documentos = rawDocs.map((d) => ({
+    nombre: typeof d.nombre === "string" ? d.nombre.slice(0, MAX_DOC_NAME_CHARS) : "documento",
+    texto: typeof d.texto === "string" ? d.texto : "",
+    illegible: !!d.illegible,
+  }));
   const contexto = typeof body.contexto === "string" ? body.contexto : "";
+  // rubro is validated against the fixed allowlist; anything else is silently dropped
+  const rubro =
+    body.modo === "consumidor" &&
+    typeof body.rubro === "string" &&
+    (RUBROS_CONSUMIDOR as readonly string[]).includes(body.rubro)
+      ? body.rubro
+      : undefined;
 
   if (documentos.length > MAX_DOCUMENTOS) {
     return NextResponse.json(
@@ -98,7 +117,7 @@ export async function POST(req: NextRequest) {
   }
 
   const totalChars =
-    documentos.reduce((acc, d) => acc + (d.texto?.length || 0), 0) +
+    documentos.reduce((acc, d) => acc + d.texto.length, 0) +
     contexto.length;
   if (totalChars > MAX_TOTAL_CHARS) {
     return NextResponse.json(
@@ -112,11 +131,9 @@ export async function POST(req: NextRequest) {
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
+    console.error("[api/analyze] ANTHROPIC_API_KEY no está configurada");
     return NextResponse.json(
-      {
-        error:
-          "Falta configurar ANTHROPIC_API_KEY en el servidor. Revisá el README para correr la app localmente.",
-      },
+      { error: "Error de configuración del servidor." },
       { status: 500 }
     );
   }
@@ -126,7 +143,7 @@ export async function POST(req: NextRequest) {
       ? buildSystemPromptLaboral()
       : buildSystemPromptConsumidor();
 
-  const userContent = buildUserContent({ ...body, documentos, contexto });
+  const userContent = buildUserContent({ ...body, documentos, contexto, rubro });
 
   const client = new Anthropic({ apiKey, timeout: 60_000, maxRetries: 2 });
 
