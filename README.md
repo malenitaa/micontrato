@@ -1,11 +1,18 @@
 # MiContrato
 
+[![Sitio en vivo](https://img.shields.io/badge/sitio-en%20vivo-6b46c1)](https://micontratoar.vercel.app)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 
 Web app que ayuda a personas en Argentina a entender, en lenguaje simple, si su
 **contrato de trabajo** o su **contrato/factura de consumo** tiene algo irregular,
 usando IA para analizarlo a la luz de la ley argentina (Ley de Contrato de Trabajo y
 Ley de Defensa del Consumidor).
+
+## Usarlo
+
+No hay que instalar nada — es una página web. Entrá directo a:
+
+### 👉 [micontratoar.vercel.app](https://micontratoar.vercel.app)
 
 ## ⚠️ Esto NO es asesoramiento legal formal
 
