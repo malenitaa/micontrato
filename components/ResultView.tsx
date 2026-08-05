@@ -1,14 +1,27 @@
-import { AnalysisResult } from "@/lib/types";
+import { AnalysisResult, Certeza } from "@/lib/types";
+
+function BadgeCerteza({ certeza }: { certeza: Certeza }) {
+  if (certeza === "alta") return null;
+  return (
+    <span className="ml-2 inline-block rounded-full bg-ink/10 px-2 py-0.5 text-[11px] font-medium text-ink/60">
+      A verificar
+    </span>
+  );
+}
 
 function Card({
   titulo,
   explicacion,
   articulo,
+  articuloVerificado,
+  certeza,
   tono,
 }: {
   titulo: string;
   explicacion: string;
   articulo?: string;
+  articuloVerificado?: boolean;
+  certeza: Certeza;
   tono: "neutral" | "amber";
 }) {
   const border =
@@ -16,10 +29,20 @@ function Card({
   const bg = tono === "amber" ? "bg-amber-50 dark:bg-amber-950/30" : "bg-surface";
   return (
     <div className={`rounded-lg border ${border} ${bg} p-4`}>
-      <p className="font-medium text-ink">{titulo}</p>
+      <p className="font-medium text-ink">
+        {titulo}
+        <BadgeCerteza certeza={certeza} />
+      </p>
       <p className="mt-1 text-sm text-ink/70">{explicacion}</p>
       {articulo && (
-        <p className="mt-2 text-xs text-ink/50">Referencia: {articulo}</p>
+        <p className="mt-2 text-xs text-ink/50">
+          Referencia: {articulo}
+          {!articuloVerificado && (
+            <span className="ml-1.5 text-ink/40">
+              (cita generada por IA, no verificada automáticamente — confirmá el texto vigente)
+            </span>
+          )}
+        </p>
       )}
     </div>
   );

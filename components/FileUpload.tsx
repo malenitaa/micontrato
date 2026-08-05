@@ -8,6 +8,20 @@ export interface DocItem {
   nombre: string;
   texto: string;
   illegible: boolean;
+  motivoIllegible?: "protegido" | "corrupto" | "escaneado";
+}
+
+const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB
+
+function mensajeIllegible(motivo?: DocItem["motivoIllegible"]): string {
+  switch (motivo) {
+    case "protegido":
+      return "(este PDF está protegido con contraseña — subilo sin contraseña o pegá el texto)";
+    case "corrupto":
+      return "(no pudimos abrir este PDF — puede estar dañado)";
+    default:
+      return "(no se pudo leer texto — puede ser un PDF escaneado)";
+  }
 }
 
 interface Props {
@@ -33,13 +47,18 @@ export default function FileUpload({ documentos, onChange }: Props) {
         setError(`"${file.name}" no es un PDF. Subí PDFs o pegá el texto directamente.`);
         continue;
       }
+      if (file.size > MAX_FILE_SIZE) {
+        setError(`"${file.name}" pesa más de 15MB. Probá con un PDF más liviano.`);
+        continue;
+      }
       try {
-        const { texto, illegible } = await extraerTextoPdf(file);
+        const { texto, illegible, motivo } = await extraerTextoPdf(file);
         nuevos.push({
           id: `${file.name}-${Date.now()}-${Math.random()}`,
           nombre: file.name,
           texto,
           illegible,
+          motivoIllegible: motivo,
         });
       } catch (e) {
         console.error(e);
@@ -48,6 +67,7 @@ export default function FileUpload({ documentos, onChange }: Props) {
           nombre: file.name,
           texto: "",
           illegible: true,
+          motivoIllegible: "corrupto",
         });
       }
     }
@@ -137,7 +157,7 @@ export default function FileUpload({ documentos, onChange }: Props) {
                 📄 {doc.nombre}
                 {doc.illegible && (
                   <span className="ml-2 text-amber-700 dark:text-amber-300">
-                    (no se pudo leer texto — puede ser un PDF escaneado)
+                    {mensajeIllegible(doc.motivoIllegible)}
                   </span>
                 )}
               </span>

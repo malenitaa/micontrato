@@ -1,6 +1,8 @@
 export interface ExtractResult {
   texto: string;
   illegible: boolean;
+  /** motivo específico del fallo, si se pudo determinar (ej. contraseña) */
+  motivo?: "protegido" | "corrupto" | "escaneado";
 }
 
 /**
@@ -15,7 +17,18 @@ export async function extraerTextoPdf(file: File): Promise<ExtractResult> {
   ).toString();
 
   const buffer = await file.arrayBuffer();
-  const doc = await pdfjs.getDocument({ data: buffer }).promise;
+
+  let doc;
+  try {
+    doc = await pdfjs.getDocument({ data: buffer }).promise;
+  } catch (e) {
+    // pdfjs lanza PasswordException para PDFs protegidos con contraseña.
+    const nombre = e instanceof Error ? e.name : "";
+    if (nombre === "PasswordException") {
+      return { texto: "", illegible: true, motivo: "protegido" };
+    }
+    return { texto: "", illegible: true, motivo: "corrupto" };
+  }
 
   let texto = "";
   for (let i = 1; i <= doc.numPages; i++) {
@@ -31,5 +44,5 @@ export async function extraerTextoPdf(file: File): Promise<ExtractResult> {
   // Un PDF escaneado (imagen) devuelve texto vacío o casi vacío por página.
   const illegible = limpio.length < 20;
 
-  return { texto: limpio, illegible };
+  return { texto: limpio, illegible, motivo: illegible ? "escaneado" : undefined };
 }

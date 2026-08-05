@@ -6,11 +6,14 @@ import {
   OUTPUT_SCHEMA,
 } from "@/lib/prompts";
 import { RECURSOS_LABORAL, RECURSOS_CONSUMIDOR } from "@/lib/legal-data";
-import { AnalyzeRequest, AnalysisResult } from "@/lib/types";
+import { esArticuloVerificable } from "@/lib/legal-context/articulos-validos";
+import { checkRateLimit } from "@/lib/rate-limit";
+import { AnalyzeRequest, AnalysisResult, Irregularidad } from "@/lib/types";
 
 export const runtime = "nodejs";
 
 const MAX_TOTAL_CHARS = 120_000;
+const MAX_DOCUMENTOS = 5;
 
 function buildUserContent(body: AnalyzeRequest): string {
   const partes: string[] = [];
@@ -23,7 +26,7 @@ function buildUserContent(body: AnalyzeRequest): string {
     partes.push("El usuario no adjuntó ningún documento.");
   } else {
     body.documentos.forEach((doc, i) => {
-      partes.push(`--- Documento ${i + 1}: "${doc.nombre}" ---`);
+      partes.push(`<documento nombre="${doc.nombre.replace(/"/g, "'")}" indice="${i + 1}">`);
       if (doc.illegible || !doc.texto.trim()) {
         partes.push(
           "[No se pudo extraer texto legible de este documento — puede ser un PDF escaneado como imagen, o estar dañado/protegido. No inventes contenido para este documento.]"
@@ -31,16 +34,26 @@ function buildUserContent(body: AnalyzeRequest): string {
       } else {
         partes.push(doc.texto);
       }
+      partes.push(`</documento>`);
     });
   }
 
-  partes.push("--- Contexto adicional que escribió el usuario (puede estar vacío) ---");
+  partes.push("<contexto_usuario>");
   partes.push(body.contexto?.trim() || "(sin contexto adicional)");
+  partes.push("</contexto_usuario>");
 
   return partes.join("\n\n");
 }
 
 export async function POST(req: NextRequest) {
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  if (!checkRateLimit(ip)) {
+    return NextResponse.json(
+      { error: "Demasiadas solicitudes. Esperá un minuto antes de volver a intentar." },
+      { status: 429 }
+    );
+  }
+
   let body: AnalyzeRequest;
   try {
     body = await req.json();
@@ -57,6 +70,13 @@ export async function POST(req: NextRequest) {
 
   const documentos = Array.isArray(body.documentos) ? body.documentos : [];
   const contexto = typeof body.contexto === "string" ? body.contexto : "";
+
+  if (documentos.length > MAX_DOCUMENTOS) {
+    return NextResponse.json(
+      { error: `Podés subir hasta ${MAX_DOCUMENTOS} documentos por análisis.` },
+      { status: 400 }
+    );
+  }
 
   const hayTextoUtil = documentos.some(
     (d) => !d.illegible && d.texto && d.texto.trim().length > 0
@@ -108,7 +128,7 @@ export async function POST(req: NextRequest) {
 
   const userContent = buildUserContent({ ...body, documentos, contexto });
 
-  const client = new Anthropic({ apiKey });
+  const client = new Anthropic({ apiKey, timeout: 60_000, maxRetries: 2 });
 
   let response;
   try {
@@ -163,8 +183,19 @@ export async function POST(req: NextRequest) {
   const hayIrregularidades =
     parsed.estado === "ok" && parsed.irregularidades?.length > 0;
 
+  // El modelo puede citar mal un artículo pese a las instrucciones del prompt:
+  // marcamos qué citas matchean nuestra whitelist curada para no mostrarlas
+  // todas con la misma confianza (ver lib/legal-context/articulos-validos.ts).
+  const irregularidades: Irregularidad[] = (parsed.irregularidades || []).map(
+    (i) => ({
+      ...i,
+      articuloVerificado: esArticuloVerificable(body.modo, i.articulo),
+    })
+  );
+
   const result: AnalysisResult = {
     ...parsed,
+    irregularidades,
     recursos: hayIrregularidades
       ? body.modo === "laboral"
         ? RECURSOS_LABORAL

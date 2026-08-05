@@ -108,4 +108,17 @@ propio) sirve. Pasos generales:
 - El archivo original del PDF nunca sale del navegador — solo se envía el
   texto extraído al servidor para generar el análisis.
 - No se persiste nada en un backend propio: no hay guardado de resultados en
-  este MVP (ver "Qué hace" arriba).
+  este MVP (ver "Qué hace" arriba). El backend tampoco loguea el contenido de
+  los documentos ni del contexto escrito por el usuario — solo se loguea el
+  objeto de error del SDK si la llamada al modelo falla.
+- El texto extraído sí viaja a la API de Claude (Anthropic) para generar el
+  análisis. Por política estándar de la API comercial de Anthropic, ese
+  contenido no se usa para entrenar modelos y se retiene por un plazo acotado
+  ligado a abuso/soporte (no indefinidamente) — confirmá el detalle vigente y
+  la fecha de verificación en https://privacy.anthropic.com/ antes de asumir
+  un comportamiento específico, ya que las políticas pueden cambiar.
+- La API tiene un rate limit básico por IP (`lib/rate-limit.ts`, 5 requests
+  por minuto) para evitar abuso y costo de API descontrolado. Es en memoria
+  del proceso: en un despliegue serverless multi-instancia no se comparte
+  entre instancias — para eso conviene un store compartido (ej. Upstash
+  Redis) si el tráfico lo justifica.
