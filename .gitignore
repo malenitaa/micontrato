@@ -21,3 +21,6 @@ npm-debug.log*
 # typescript
 next-env.d.ts
 *.tsbuildinfo
+
+# Archivo privado local (nunca se sube al repo)
+README.privado.md
