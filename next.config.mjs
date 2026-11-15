@@ -18,6 +18,9 @@ const securityHeaders = [
       "connect-src 'self'",
       "worker-src 'self' blob:",
       "frame-ancestors 'none'",
+      "base-uri 'none'",
+      "form-action 'self'",
+      "object-src 'none'",
     ].join("; "),
   },
 ];

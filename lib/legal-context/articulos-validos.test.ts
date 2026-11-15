@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { esArticuloVerificable } from "./articulos-validos";
+import { esArticuloReformado, esArticuloVerificable } from "./articulos-validos";
 
 describe("esArticuloVerificable", () => {
   describe("citas que no están en el contexto curado → false", () => {
@@ -15,6 +15,11 @@ describe("esArticuloVerificable", () => {
       ["laboral", "Ley 99.999"],
       ["laboral", "Ley 23.660/23.661"],
       ["laboral", "sin cita"],
+      ["laboral", "Ley 20.744, Art. 999"], // ley antes del artículo
+      ["laboral", "LCT art. 999"],
+      ["laboral", "Art. 245, Ley 20.744; Art. 999, Ley 20.744"], // una de dos citas
+      ["laboral", "Art. 245, Ley 120.744"], // ley que no existe
+      ["laboral", "Art. 245 de la Ley de Sociedades"],
       ["laboral", ""],
     ] as const)("%s: %s", (modo, cita) => {
       expect(esArticuloVerificable(modo, cita)).toBe(false);
@@ -37,8 +42,33 @@ describe("esArticuloVerificable", () => {
       ["consumidor", "Art. 37 Ley 24240"],
       ["consumidor", "Art. 34"], // sin ley: se asume la 24.240
       ["consumidor", "Ley 24.240 (ver texto vigente)"],
+      ["laboral", "Ley 20.744, art. 245"], // ley antes del artículo
+      ["laboral", "Art. 245, Ley 20.744; Art. 150, Ley 20.744"],
     ] as const)("%s: %s", (modo, cita) => {
       expect(esArticuloVerificable(modo, cita)).toBe(true);
     });
+  });
+});
+
+describe("esArticuloReformado", () => {
+  it.each([
+    "Art. 245, Ley 20.744",
+    "Art. 92 bis LCT",
+    "Art. 8, Ley 24.013",
+    "Art. 1, Ley 25.323",
+    "Art. 150, Ley 20.744; Art. 245, Ley 20.744",
+  ])("laboral: %s está reformado recientemente", (cita) => {
+    expect(esArticuloReformado("laboral", cita)).toBe(true);
+  });
+
+  it.each(["Art. 150, Ley 20.744", "Art. 201 LCT", "Ley 23.041"])(
+    "laboral: %s no está marcado como reformado",
+    (cita) => {
+      expect(esArticuloReformado("laboral", cita)).toBe(false);
+    }
+  );
+
+  it("consumidor: ningún artículo de la 24.240 está marcado", () => {
+    expect(esArticuloReformado("consumidor", "Art. 37, Ley 24.240")).toBe(false);
   });
 });

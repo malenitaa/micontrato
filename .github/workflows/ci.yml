@@ -4,6 +4,10 @@ on:
   pull_request:
   push:
     branches: [main]
+  # Semanal aunque nadie pushee: el test canario del salario mínimo avisa
+  # cuando la tabla de escalones se queda sin el mes actual.
+  schedule:
+    - cron: "0 12 * * 1"
 
 permissions:
   contents: read

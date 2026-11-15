@@ -11,7 +11,11 @@ const requests = new Map<string, number[]>();
  */
 export function checkRateLimit(ip: string): boolean {
   const now = Date.now();
-  const timestamps = (requests.get(ip) || []).filter((t) => now - t < WINDOW_MS);
+  // Si el reloj vuelve atrás, los timestamps "del futuro" se descartan en vez
+  // de dejar la IP bloqueada hasta que el reloj los alcance.
+  const timestamps = (requests.get(ip) || []).filter(
+    (t) => now - t >= 0 && now - t < WINDOW_MS
+  );
   if (timestamps.length >= MAX_REQ_PER_WINDOW) {
     requests.set(ip, timestamps);
     return false;
