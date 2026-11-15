@@ -1,11 +1,15 @@
 import Link from "next/link";
-import { SMVM } from "@/lib/legal-data";
+import { SMVM_LINK_VERIFICACION, smvmVigente } from "@/lib/legal-data";
+
+// El SMVM vigente depende de la fecha: se regenera cada hora en vez de quedar fijo al build.
+export const revalidate = 3600;
 
 export const metadata = {
   title: "Fuentes — MiContrato",
 };
 
 export default function FuentesPage() {
+  const smvm = smvmVigente();
   return (
     <main className="mx-auto max-w-2xl px-4 py-10">
       <Link href="/" className="text-sm text-ink/50 hover:text-ink/80">
@@ -68,17 +72,17 @@ export default function FuentesPage() {
             Salario Mínimo, Vital y Móvil (SMVM)
           </h2>
           <p className="mt-1">
-            Valor usado: ${SMVM.valorMensual.toLocaleString("es-AR")}{" "}
-            mensuales, vigente desde {SMVM.vigenteDesde}. Fuente: {SMVM.fuente}
+            Valor usado: ${smvm.valorMensual.toLocaleString("es-AR")}{" "}
+            mensuales, vigente desde {smvm.vigenteDesde}. Fuente: {smvm.fuente}
             . Como este monto cambia periódicamente, podés verificar el valor
             actualizado en{" "}
             <a
-              href={SMVM.linkVerificacion}
+              href={SMVM_LINK_VERIFICACION}
               target="_blank"
               rel="noreferrer"
               className="underline hover:text-ink"
             >
-              {SMVM.linkVerificacion}
+              {SMVM_LINK_VERIFICACION}
             </a>
             .
           </p>
