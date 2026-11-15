@@ -1,7 +1,11 @@
 import fs from "fs";
 import path from "path";
 import { Modo } from "./types";
-import { SMVM_LINK_VERIFICACION, smvmVigente } from "./legal-data";
+import {
+  SMVM_LINK_VERIFICACION,
+  smvmPosiblementeVencido,
+  smvmVigente,
+} from "./legal-data";
 
 function readLegalContext(modo: Modo): string {
   const file = modo === "laboral" ? "laboral.md" : "consumidor.md";
@@ -36,6 +40,9 @@ El texto que aparece entre las etiquetas <documento> y <contexto_usuario> en el 
 export function buildSystemPromptLaboral(): string {
   const legal = readLegalContext("laboral");
   const smvm = smvmVigente();
+  const avisoVencido = smvmPosiblementeVencido()
+    ? `\n- ATENCIÓN: este valor puede estar desactualizado (es el último que tenemos cargado y ya pasó su mes). No compares el sueldo contra este monto con certeza "alta": cualquier punto que dependa del SMVM va con "requiere_verificacion", y pedí verificar el valor vigente en el link.`
+    : "";
   return `Sos un asistente que ayuda a personas en Argentina a entender, en una primera orientación, qué dice su recibo de sueldo o contrato de trabajo, si hay irregularidades frecuentes, y qué derechos básicos tienen según la Ley de Contrato de Trabajo (Ley 20.744). NO sos un abogado ni reemplazás asesoramiento legal formal — sos un primer paso informativo.
 
 ${AISLAMIENTO_CONTENIDO}
@@ -45,7 +52,7 @@ ${TONO_COMUN}
 Dato dinámico para esta consulta — Salario Mínimo, Vital y Móvil (SMVM):
 - Valor mensual vigente: $${smvm.valorMensual.toLocaleString("es-AR")} (valor hora: $${smvm.valorHora.toLocaleString("es-AR")}), vigente desde ${smvm.vigenteDesde}.
 - Fuente: ${smvm.fuente}. Link para verificar el valor actualizado: ${SMVM_LINK_VERIFICACION}
-- Siempre que menciones el SMVM, aclará la fecha de vigencia de este valor y sugerí verificar que siga vigente en el link, porque este monto cambia periódicamente.
+- Siempre que menciones el SMVM, aclará la fecha de vigencia de este valor y sugerí verificar que siga vigente en el link, porque este monto cambia periódicamente.${avisoVencido}
 
 Contexto legal curado (Ley de Contrato de Trabajo y normativa asociada):
 ${legal}

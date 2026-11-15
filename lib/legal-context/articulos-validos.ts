@@ -37,39 +37,64 @@ const ALIAS_LEY: [RegExp, string][] = [
   [/\bLDC\b|ley de defensa del consumidor/i, "24.240"],
 ];
 
+const MARCA_LEY = /\bley\b|\bLCT\b|\bLDC\b/i;
+const MARCA_ART = /\bart(?:[ií]culos?|s)?\b/i;
+
 interface Cita {
+  /** La cita dice "Art."/"artículo", con o sin número legible. */
+  nombraArticulo: boolean;
   articulos: string[];
+  /** La cita dice "Ley"/"LCT"/"LDC", se haya podido leer el número o no. */
+  nombraLey: boolean;
   ley: string | null;
 }
 
-/** "Art. 245, Ley 20.744" → { articulos: ["245"], ley: "20.744" }. */
+/** "Art. 245, Ley 20.744" → { articulos: ["245"], ley: "20.744", … }. */
 function parsearCita(cita: string): Cita {
-  // Lo que viene antes de la ley son los artículos; lo de después, la ley.
-  const marcaLey = cita.search(/\bley\b|\bLCT\b|\bLDC\b/i);
-  const parteArticulos = marcaLey === -1 ? cita : cita.slice(0, marcaLey);
-  const parteLey = marcaLey === -1 ? "" : cita.slice(marcaLey);
+  // NFKC pasa dígitos de ancho completo ("２４５") a ASCII.
+  const texto = cita.normalize("NFKC");
+  const iArt = texto.search(MARCA_ART);
+  const iLey = texto.search(MARCA_LEY);
+  // Cada parte va desde su marca hasta la marca de la otra (si viene después)
+  // o hasta el final: así sirve "Art. 8, Ley 24.013" y "Ley 24.013, art. 8".
+  const tramo = (desde: number, otra: number) =>
+    desde === -1 ? "" : texto.slice(desde, otra > desde ? otra : undefined);
+  const parteArticulos = tramo(iArt, iLey);
+  const parteLey = tramo(iLey, iArt);
 
-  const articulos = /\bart/i.test(parteArticulos)
-    ? Array.from(
-        parteArticulos.matchAll(/(\d+)(\s*(?:bis|ter|quater)\b)?/gi),
-        (m) => (m[2] ? `${m[1]} ${m[2].trim().toLowerCase()}` : m[1])
-      )
-    : [];
+  const articulos = Array.from(
+    parteArticulos.matchAll(/(\d+)(\s*(?:bis|ter|quater)\b)?/gi),
+    (m) => (m[2] ? `${m[1]} ${m[2].trim().toLowerCase()}` : m[1])
+  );
 
-  let ley: string | null = null;
   const numero = parteLey.match(/\b(\d{1,2})\.?(\d{3})\b/);
-  if (numero) {
-    ley = `${numero[1]}.${numero[2]}`;
-  } else {
-    ley = ALIAS_LEY.find(([re]) => re.test(parteLey))?.[1] ?? null;
-  }
-  return { articulos, ley };
+  const ley = numero
+    ? `${numero[1]}.${numero[2]}`
+    : ALIAS_LEY.find(([re]) => re.test(parteLey))?.[1] ?? null;
+
+  return { nombraArticulo: iArt !== -1, articulos, nombraLey: iLey !== -1, ley };
 }
 
-export function esArticuloVerificable(modo: Modo, articulo: string): boolean {
-  const lista =
-    modo === "laboral" ? ARTICULOS_VALIDOS_LABORAL : ARTICULOS_VALIDOS_CONSUMIDOR;
-  const { articulos, ley } = parsearCita(articulo);
+/**
+ * Artículos del contexto curado que `laboral.md` marca como "reformado
+ * recientemente" (o que habrían sido derogados): existen en el contexto, pero
+ * una cita a ellos nunca puede ir con certeza "alta".
+ */
+export const ARTICULOS_REFORMADOS_LABORAL: Whitelist = {
+  "20.744": ["92 bis", "245"],
+  "24.013": ["8", "9", "10"],
+  "25.323": ["1"],
+};
+
+/** Una cita sola ("Art. 245, Ley 20.744") contra una lista ley → artículos. */
+function citaEnLista(modo: Modo, cita: string, lista: Whitelist): boolean {
+  const { nombraArticulo, articulos, nombraLey, ley } = parsearCita(cita);
+
+  // Una ley que no se pudo leer ("Ley 120.744", "Ley de Sociedades") no
+  // hereda la ley por defecto del modo.
+  if (nombraLey && ley === null) return false;
+  // "Art." sin número legible no vale como si citara solo la ley.
+  if (nombraArticulo && articulos.length === 0) return false;
 
   if (articulos.length === 0) {
     // Solo la ley, como pide el prompt cuando no hay artículo exacto
@@ -78,4 +103,24 @@ export function esArticuloVerificable(modo: Modo, articulo: string): boolean {
   }
   const validos = lista[ley ?? LEY_POR_DEFECTO[modo]];
   return validos !== undefined && articulos.every((a) => validos.includes(a));
+}
+
+/** Varias citas separadas por ";" se evalúan una por una. */
+function citas(articulo: string): string[] {
+  return articulo.split(";").filter((c) => c.trim() !== "");
+}
+
+export function esArticuloVerificable(modo: Modo, articulo: string): boolean {
+  // El modelo puede omitir el campo aunque el schema lo pida.
+  if (typeof articulo !== "string") return false;
+  const lista =
+    modo === "laboral" ? ARTICULOS_VALIDOS_LABORAL : ARTICULOS_VALIDOS_CONSUMIDOR;
+  const partes = citas(articulo);
+  return partes.length > 0 && partes.every((c) => citaEnLista(modo, c, lista));
+}
+
+/** true si alguna de las citas es a un artículo reformado recientemente. */
+export function esArticuloReformado(modo: Modo, articulo: string): boolean {
+  if (typeof articulo !== "string" || modo !== "laboral") return false;
+  return citas(articulo).some((c) => citaEnLista(modo, c, ARTICULOS_REFORMADOS_LABORAL));
 }

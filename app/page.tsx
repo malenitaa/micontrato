@@ -35,7 +35,7 @@ export default function Home() {
       </div>
 
       <p className="mt-10 text-xs text-ink/40">
-        No guardamos tus documentos por default. Nada de esto reemplaza una
+        No guardamos tus documentos. Nada de esto reemplaza una
         consulta legal formal.
       </p>
     </main>

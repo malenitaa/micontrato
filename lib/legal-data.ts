@@ -63,6 +63,19 @@ export function smvmVigente(fecha: Date = new Date()): EscalonSMVM {
   return vigentes[vigentes.length - 1] ?? SMVM_ESCALONES[0];
 }
 
+/**
+ * true si ya pasó el mes del último escalón cargado: probablemente salió una
+ * resolución nueva que todavía no está en la tabla.
+ */
+export function smvmPosiblementeVencido(fecha: Date = new Date()): boolean {
+  const [anio, mes] = SMVM_ESCALONES[SMVM_ESCALONES.length - 1].vigenteDesde
+    .split("-")
+    .map(Number);
+  const mesSiguiente =
+    mes === 12 ? `${anio + 1}-01-01` : `${anio}-${String(mes + 1).padStart(2, "0")}-01`;
+  return fechaArgentina(fecha) >= mesSiguiente;
+}
+
 export const RUBROS_CONSUMIDOR = [
   "Telefonía / internet",
   "Banco / tarjeta de crédito",

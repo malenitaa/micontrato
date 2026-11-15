@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { SMVM_ESCALONES, smvmVigente } from "./legal-data";
+import { SMVM_ESCALONES, smvmPosiblementeVencido, smvmVigente } from "./legal-data";
 
 // Mediodía en Argentina (UTC-3) para que la fecha no dependa del huso del test.
 const enArgentina = (fecha: string) => new Date(`${fecha}T12:00:00-03:00`);
@@ -43,5 +43,22 @@ describe("smvmVigente", () => {
   it("los escalones están en orden cronológico", () => {
     const fechas = SMVM_ESCALONES.map((e) => e.vigenteDesde);
     expect([...fechas].sort()).toEqual(fechas);
+  });
+});
+
+describe("smvmPosiblementeVencido", () => {
+  it("dentro del mes del último escalón cargado, no está vencido", () => {
+    expect(smvmPosiblementeVencido(enArgentina("2027-04-30"))).toBe(false);
+  });
+
+  it("desde el mes siguiente al último escalón cargado, puede estar vencido", () => {
+    expect(smvmPosiblementeVencido(enArgentina("2027-05-01"))).toBe(true);
+  });
+
+  // Canario: corre también en la CI semanal. Si falla, salió (o está por
+  // salir) una resolución nueva del Consejo del Salario: cargá sus escalones
+  // en SMVM_ESCALONES (lib/legal-data.ts).
+  it("canario: la tabla cubre el mes de hoy", () => {
+    expect(smvmPosiblementeVencido(new Date())).toBe(false);
   });
 });

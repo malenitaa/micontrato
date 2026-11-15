@@ -37,8 +37,8 @@ cuando detectan una irregularidad.
 ## Privacidad
 
 - No hace falta crear cuenta.
-- El PDF original nunca sale de tu navegador — solo el texto extraído viaja al
-  servidor para generar el análisis.
+- El PDF original nunca sale de tu navegador — solo el texto extraído (y el
+  nombre del archivo) viaja al servidor para generar el análisis.
 - Nada se guarda: no hay base de datos, los documentos solo viven en la sesión de
   tu navegador y en el pedido puntual de análisis.
 - El texto extraído sí viaja a la API de Claude (Anthropic) para generar el
@@ -47,7 +47,7 @@ cuando detectan una irregularidad.
 
 ## Para desarrolladores / correrlo vos mismo
 
-Requisitos: Node.js 20+, y una API key propia de [Anthropic](https://console.anthropic.com/).
+Requisitos: Node.js 22.12+ (npm 11), y una API key propia de [Anthropic](https://console.anthropic.com/).
 
 ```bash
 git clone https://github.com/malenitaa/micontrato.git
@@ -56,6 +56,12 @@ npm install
 cp .env.example .env.local
 # completá ANTHROPIC_API_KEY en .env.local con tu propia API key
 npm run dev
+```
+
+Para correr los tests (no llaman a la API, no gastan crédito):
+
+```bash
+npm test
 ```
 
 Abrí [http://localhost:3000](http://localhost:3000).
