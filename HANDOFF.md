@@ -41,7 +41,7 @@ timeline
 1. **Antes de mayo de 2027** (#14): cargar la resolución del Consejo del Salario que siga a la 4/2026 en `SMVM_ESCALONES` (`lib/legal-data.ts`). El test canario hace fallar la CI semanal cuando la tabla no cubre el mes.
 2. **PR de Dependabot abiertos:** #8 (menores), #9 (pdfjs 6), #10 (TypeScript 7), #11 (@types/node 26) y #12 (Next 16). Revisarlos uno por uno, sin automerge. Al pasar a Next 16, sacar el `overrides` de postcss (ADR-0004).
 3. **Observabilidad** (#13): hoy no hay forma de enterarse de un error en producción ni del costo por consulta, salvo la consola de Anthropic. Issue de deuda.
-4. **Verificar `laboral.md` contra el texto vigente de las Leyes 27.742 y 27.802** y, si se confirma, actualizar `ARTICULOS_REFORMADOS_LABORAL`.
+4. **Verificar `laboral.md` contra el texto vigente de las Leyes 27.742 y 27.802** (#15) y, si se confirma, actualizar `ARTICULOS_REFORMADOS_LABORAL`.
 
 ## Decisiones que tomé (para vetar)
 
