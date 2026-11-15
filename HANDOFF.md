@@ -38,9 +38,9 @@ timeline
 
 ## Qué sigue
 
-1. **Antes de mayo de 2027:** cargar la resolución del Consejo del Salario que siga a la 4/2026 en `SMVM_ESCALONES` (`lib/legal-data.ts`). El test canario hace fallar la CI semanal cuando la tabla no cubre el mes.
+1. **Antes de mayo de 2027** (#14): cargar la resolución del Consejo del Salario que siga a la 4/2026 en `SMVM_ESCALONES` (`lib/legal-data.ts`). El test canario hace fallar la CI semanal cuando la tabla no cubre el mes.
 2. **PR de Dependabot abiertos:** #8 (menores), #9 (pdfjs 6), #10 (TypeScript 7), #11 (@types/node 26) y #12 (Next 16). Revisarlos uno por uno, sin automerge. Al pasar a Next 16, sacar el `overrides` de postcss (ADR-0004).
-3. **Observabilidad:** hoy no hay forma de enterarse de un error en producción ni del costo por consulta, salvo la consola de Anthropic. Issue de deuda.
+3. **Observabilidad** (#13): hoy no hay forma de enterarse de un error en producción ni del costo por consulta, salvo la consola de Anthropic. Issue de deuda.
 4. **Verificar `laboral.md` contra el texto vigente de las Leyes 27.742 y 27.802** y, si se confirma, actualizar `ARTICULOS_REFORMADOS_LABORAL`.
 
 ## Decisiones que tomé (para vetar)
@@ -57,17 +57,17 @@ timeline
 
 ## Para decidir
 
-- **Prender el reporte privado de vulnerabilidades** en el repo: `SECURITY.md` apunta a ese formulario y hoy está apagado. Comando: `gh api -X PUT repos/malenitaa/micontrato/private-vulnerability-reporting`.
-- **Prender Dependabot alerts y security updates** (Settings → Code security).
-- **Vercel:** el merge a `main` del 15/11 salió como Preview y hubo que promoverlo a mano. Mirar en el próximo merge si se repite.
-- **`docs/interno/DISENO.md` está gitignoreado:** existe solo en esta copia local. Si querés que no se pierda, ofrezco un repo privado aparte.
-- **Pasar la portada por la skill `web-sin-ia`:** no se corrió en este cierre.
+- **Prender el reporte privado de vulnerabilidades** en el repo (#16): `SECURITY.md` apunta a ese formulario y hoy está apagado. Comando: `gh api -X PUT repos/malenitaa/micontrato/private-vulnerability-reporting`.
+- **Prender Dependabot alerts y security updates** (Settings → Code security) (#16).
+- **Vercel** (#17): el merge a `main` del 15/11 salió como Preview y hubo que promoverlo a mano. Mirar en el próximo merge si se repite.
+- **`docs/interno/DISENO.md` está gitignoreado** (#18): existe solo en esta copia local. Si querés que no se pierda, ofrezco un repo privado aparte.
+- **Pasar la portada por la skill `web-sin-ia`** (#19): no se corrió en este cierre.
 
 ## Pendientes y deudas conocidas
 
 - Rate limit en memoria por instancia; techo de gasto = saldo prepago (ADR-0005).
-- Límite de entrada en caracteres, no en tokens (AUDITORIA M4, aceptado).
-- `script-src 'unsafe-inline'` en la CSP (lo requiere Next sin nonces).
+- Límite de entrada en caracteres, no en tokens (AUDITORIA M4, aceptado, #20).
+- `script-src 'unsafe-inline'` en la CSP (lo requiere Next sin nonces, #21).
 - Código muerto en `route.ts`: chequeo de `MAX_DOCUMENTOS` repetido.
 - Sin OCR para PDFs escaneados.
 - CA-14 (PDFs ilegibles) sin test automático: es código de navegador.
