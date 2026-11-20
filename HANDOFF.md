@@ -1,8 +1,8 @@
 # MiContrato — handoff
 
-**Estado:** en producción en [micontratoar.vercel.app](https://micontratoar.vercel.app). Analiza contratos, recibos y facturas; el cierre del 15/11/2026 corrigió la auditoría y la prueba de peor caso. · **Última actualización:** 15/11/2026
+**Estado:** en producción en [micontratoar.vercel.app](https://micontratoar.vercel.app). Analiza contratos, recibos y facturas; el cierre del 15/11/2026 corrigió la auditoría y la prueba de peor caso. · **Última actualización:** 20/11/2026
 **Lenguaje:** TypeScript (Next.js 15, App Router) · **Forma:** simple (un endpoint, sin base de datos)
-**Correr:** `npm run dev` · **Tests:** `npm test` · **Deploy:** merge a `main` → Vercel (ver "Para decidir")
+**Correr:** `npm run dev` · **Tests:** `npm test` · **Deploy:** merge a `main` → Vercel (sale como Production solo)
 
 ## Roadmap
 
@@ -23,11 +23,12 @@ timeline
 | MVP | modos, extracción de PDF, análisis, recursos | ✅ | CA-1 a CA-10, CA-14 |
 | Endurecimiento | headers, validación, rate limit | ✅ | CA-2 a CA-4, CA-11 |
 | Arreglos #1, #2 y #4 | SMVM por fecha, citas exactas, CI | ✅ (`v0.1.1`) | CA-7, CA-12, CA-13 |
-| Cierre | spec, tests, auditoría, peor caso, docs | 🔧 PR abierto | CA-15 a CA-18 |
+| Cierre | spec, tests, auditoría, peor caso, docs | ✅ (`v0.2.0`) | CA-15 a CA-18 |
 
 ## Qué se hizo (lo último arriba)
 
-- 15/11 · **Cierre de proyecto** (rama `chore/cierre-proyecto`):
+- 20/11 · Reporte privado de vulnerabilidades, Dependabot alerts y security updates prendidos (#16). #17 cerrado: el merge de #22 salió como Production solo.
+- 15/11 · **Cierre de proyecto** (PR #22, `v0.2.0`):
   - **Spec y tests:** `docs/SPEC.md` con 18 criterios; la suite pasó de 34 a 135 tests.
   - **Peor caso:** 59 tests en `tests/peor-caso/`, de los que fallaban 18.
   - **Auditoría:** 1 alto, 4 medios y 5 bajos, todos corregidos salvo M4, que queda aceptado.
@@ -39,7 +40,7 @@ timeline
 ## Qué sigue
 
 1. **Antes de mayo de 2027** (#14): cargar la resolución del Consejo del Salario que siga a la 4/2026 en `SMVM_ESCALONES` (`lib/legal-data.ts`). El test canario hace fallar la CI semanal cuando la tabla no cubre el mes.
-2. **PR de Dependabot abiertos:** #8 (menores), #9 (pdfjs 6), #10 (TypeScript 7), #11 (@types/node 26) y #12 (Next 16). Revisarlos uno por uno, sin automerge. Al pasar a Next 16, sacar el `overrides` de postcss (ADR-0004).
+2. **PR de Dependabot abiertos:** #8 (menores), #9 (pdfjs 6), #10 (TypeScript 7), #11 (@types/node 26) y #12 (Next 16). Revisarlos uno por uno, sin automerge. Al 20/11, #10 y #12 tienen la CI en rojo. Al pasar a Next 16, sacar el `overrides` de postcss (ADR-0004).
 3. **Observabilidad** (#13): hoy no hay forma de enterarse de un error en producción ni del costo por consulta, salvo la consola de Anthropic. Issue de deuda.
 4. **Verificar `laboral.md` contra el texto vigente de las Leyes 27.742 y 27.802** (#15) y, si se confirma, actualizar `ARTICULOS_REFORMADOS_LABORAL`.
 
@@ -53,13 +54,10 @@ timeline
 - **Body o documentos que no son objetos:** 400 "Solicitud inválida." en vez de 500.
 - **Portada:** "No guardamos tus documentos por default" pasa a "No guardamos tus documentos". **README:** aclara que también viaja el nombre del archivo.
 - **CI semanal** (lunes, 12:00 UTC), además de en PRs y en push a `main`.
-- **Versión 0.2.0** (menor, porque cambia comportamiento visible). El tag se crea después del merge.
+- **Versión 0.2.0** (menor, porque cambia comportamiento visible). Tag y release `v0.2.0` creados.
 
 ## Para decidir
 
-- **Prender el reporte privado de vulnerabilidades** en el repo (#16): `SECURITY.md` apunta a ese formulario y hoy está apagado. Comando: `gh api -X PUT repos/malenitaa/micontrato/private-vulnerability-reporting`.
-- **Prender Dependabot alerts y security updates** (Settings → Code security) (#16).
-- **Vercel** (#17): el merge a `main` del 15/11 salió como Preview y hubo que promoverlo a mano. Mirar en el próximo merge si se repite.
 - **`docs/interno/DISENO.md` está gitignoreado** (#18): existe solo en esta copia local. Si querés que no se pierda, ofrezco un repo privado aparte.
 - **Pasar la portada por la skill `web-sin-ia`** (#19): no se corrió en este cierre.
 
